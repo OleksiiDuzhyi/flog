@@ -14,6 +14,8 @@ github.com/mingrammer/cfmt v1.0.0 h1:xPYJVLhOB22M808yYAyToTO535YANlSCP0Hzu21GUdE
 github.com/mingrammer/cfmt v1.0.0/go.mod h1:D2ZhJie9PURSfLSb+DB3l+aE32t+K7B596FI6rdm/pI=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
+github.com/smira/go-statsd v1.3.1 h1:JalGiHNdK7GqVAPpg7j0Kwp2jZrz/fCg/B4ZuNuBY2w=
+github.com/smira/go-statsd v1.3.1/go.mod h1:1srXJ9/pbnN04G8f4F1jUzsGOnwkPKXciyqpewGlkC4=
 github.com/spf13/pflag v1.0.0 h1:oaPbdDe/x0UncahuwiPxW1GYJyilRAdsPnq3e1yaPcI=
 github.com/spf13/pflag v1.0.0/go.mod h1:DYY7MBk1bdzusC3SYhjObp+wFpr4gzcvqqNjLnInEg4=
 github.com/stretchr/testify v1.2.1 h1:52QO5WkIUcHGIR7EnGagH88x1bUzqGXTC5/1bDTUQ7U=

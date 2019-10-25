@@ -9,10 +9,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"github.com/smira/go-statsd"
 )
 
 // Generate generates the logs with given options
-func Generate(option *Option) error {
+func Generate(option *Option, client *statsd.Client) error {
 	splitCount := 1
 	created := time.Now()
 
@@ -34,6 +35,8 @@ func Generate(option *Option) error {
 			}
 			log := NewLog(option.Format, created)
 			writer.Write([]byte(log + "\n"))
+			client.GaugeDelta("generated_total", +1)
+			client.Incr("generated", 1)
 			created = created.Add(time.Duration(option.Sleep*float64(time.Second/time.Millisecond)) * time.Millisecond)
 		}
 	}
@@ -46,6 +49,8 @@ func Generate(option *Option) error {
 			}
 			log := NewLog(option.Format, created)
 			writer.Write([]byte(log + "\n"))
+			client.GaugeDelta("generated_total", +1)
+			client.Incr("generated", 1)
 
 			if (option.Type != "stdout") && (option.SplitBy > 0) && (line > option.SplitBy*splitCount) {
 				writer.Close()
@@ -56,6 +61,7 @@ func Generate(option *Option) error {
 
 				splitCount++
 			}
+
 			created = created.Add(time.Duration(option.Sleep*float64(time.Second/time.Millisecond)) * time.Millisecond)
 		}
 	} else {
@@ -67,6 +73,8 @@ func Generate(option *Option) error {
 			}
 			log := NewLog(option.Format, created)
 			writer.Write([]byte(log + "\n"))
+			client.GaugeDelta("generated_total", +1)
+			client.Incr("generated", 1)
 
 			bytes += len(log)
 			if (option.Type != "stdout") && (option.SplitBy > 0) && (bytes > option.SplitBy*splitCount+1) {
