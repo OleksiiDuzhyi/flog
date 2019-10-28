@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/spf13/pflag"
 )
@@ -29,6 +30,9 @@ Options:
                            with "byte" option, the logs will be split whenever the maximum size in bytes is reached.
   -w, --overwrite          overwrite the existing log files.
   -l, --loop               loop output forever until killed.
+  -m, --statsd-host	   	   set statsd server host. Defaults to 0.0.0.0.
+  -k, --statsd-port	   	   specify statsd server port number. Defaults to 8125.
+  -c, --statsd-prefix	   set statsd metric prefix. This is a string that all your metric names will start with. Default - empty.
 `
 
 var validFormats = []string{"apache_common", "apache_combined", "apache_error", "rfc3164", "rfc5424", "common_log"}
@@ -46,6 +50,9 @@ type Option struct {
 	SplitBy   int
 	Overwrite bool
 	Forever   bool
+	StatsdHost string
+	StatsdPort string
+	StatsdPrefix string
 }
 
 func init() {
@@ -77,6 +84,9 @@ func defaultOptions() *Option {
 		SplitBy:   0,
 		Overwrite: false,
 		Forever:   false,
+		StatsdHost: "0.0.0.0",
+		StatsdPort: "8125",
+		StatsdPrefix: "",
 	}
 }
 
@@ -154,6 +164,9 @@ func ParseOptions() *Option {
 	splitBy := pflag.IntP("split", "p", opts.SplitBy, "Set the maximum number of lines or maximum size in bytes of a log file")
 	overwrite := pflag.BoolP("overwrite", "w", false, "Overwrite the existing log files")
 	forever := pflag.BoolP("loop", "l", false, "Loop output forever until killed")
+	statsdHost := pflag.StringP("statsd-host", "m", opts.StatsdHost, "Metric server hostname or ip")
+	statsdPort := pflag.StringP("statsd-port", "k", opts.StatsdPort, "Metric server port number")
+	statsdPrefix := pflag.StringP("statsd-prefix", "c", opts.StatsdPrefix, "Metric name prefix")
 
 	pflag.Parse()
 
@@ -189,5 +202,15 @@ func ParseOptions() *Option {
 	opts.Output = *output
 	opts.Overwrite = *overwrite
 	opts.Forever = *forever
+	opts.StatsdHost = *statsdHost
+
+	if _, err = strconv.Atoi(*statsdPort); err == nil {
+		opts.StatsdPort = *statsdPort
+	} else {
+		errorExit(err)
+	}
+
+	opts.StatsdPrefix = *statsdPrefix
+
 	return opts
 }
