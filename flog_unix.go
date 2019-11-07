@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"syscall"
-
+	"time"
 	"github.com/smira/go-statsd"
 )
 
@@ -28,5 +28,6 @@ func Run(option *Option) error {
 	}
 
 	generated := Generate(option, client)
+	time.Sleep(50 * time.Millisecond)
 	return generated
 }
