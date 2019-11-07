@@ -16,6 +16,7 @@ import (
 func Generate(option *Option, client *statsd.Client) error {
 	splitCount := 1
 	created := time.Now()
+	generated_count := 0
 
 	delay := time.Duration(0)
 	if option.Delay > 0 {
@@ -35,10 +36,11 @@ func Generate(option *Option, client *statsd.Client) error {
 			}
 			log := NewLog(option.Format, created)
 			writer.Write([]byte(log + "\n"))
-			client.GaugeDelta("generated_total", +1)
-			client.Incr("generated", 1)
-			client.GaugeDelta("generated_total_bytes", +int64(len([]byte(log + "\n"))))
-			client.Incr("generated_bytes", int64(len([]byte(log + "\n"))))
+			generated_count++
+			// client.GaugeDelta("generated_total", +1)
+			// client.Incr("generated", 1)
+			// client.GaugeDelta("generated_total_bytes", +int64(len([]byte(log + "\n"))))
+			// client.Incr("generated_bytes", int64(len([]byte(log + "\n"))))
 			created = created.Add(time.Duration(option.Sleep*float64(time.Second/time.Millisecond)) * time.Millisecond)
 		}
 	}
@@ -51,10 +53,11 @@ func Generate(option *Option, client *statsd.Client) error {
 			}
 			log := NewLog(option.Format, created)
 			writer.Write([]byte(log + "\n"))
-			client.GaugeDelta("generated_total", +1)
-			client.Incr("generated", 1)
-			client.GaugeDelta("generated_total_bytes", +int64(len([]byte(log + "\n"))))
-			client.Incr("generated_bytes", int64(len([]byte(log + "\n"))))
+			generated_count++
+			// client.GaugeDelta("generated_total", +1)
+			// client.Incr("generated", 1)
+			// client.GaugeDelta("generated_total_bytes", +int64(len([]byte(log + "\n"))))
+			// client.Incr("generated_bytes", int64(len([]byte(log + "\n"))))
 
 			if (option.Type != "stdout") && (option.SplitBy > 0) && (line > option.SplitBy*splitCount) {
 				writer.Close()
@@ -77,10 +80,11 @@ func Generate(option *Option, client *statsd.Client) error {
 			}
 			log := NewLog(option.Format, created)
 			writer.Write([]byte(log + "\n"))
-			client.GaugeDelta("generated_total", +1)
-			client.Incr("generated", 1)
-			client.GaugeDelta("generated_total_bytes", +int64(len([]byte(log + "\n"))))
-			client.Incr("generated_bytes", int64(len([]byte(log + "\n"))))
+			generated_count++
+			// client.GaugeDelta("generated_total", +1)
+			// client.Incr("generated", 1)
+			// client.GaugeDelta("generated_total_bytes", +int64(len([]byte(log + "\n"))))
+			// client.Incr("generated_bytes", int64(len([]byte(log + "\n"))))
 
 			bytes += len(log)
 			if (option.Type != "stdout") && (option.SplitBy > 0) && (bytes > option.SplitBy*splitCount+1) {
@@ -95,6 +99,9 @@ func Generate(option *Option, client *statsd.Client) error {
 			created = created.Add(time.Duration(option.Sleep*float64(time.Second/time.Millisecond)) * time.Millisecond)
 		}
 	}
+
+	client.Incr("generated", int64(generated_count))
+	client.GaugeDelta("generated_total", +int64(generated_count))
 
 	if option.Type != "stdout" {
 		writer.Close()

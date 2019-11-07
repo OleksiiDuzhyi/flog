@@ -26,5 +26,7 @@ func Run(option *Option) error {
 	if _, err := os.Stat(option.Output); err == nil && !option.Overwrite {
 		return errors.New(option.Output + " already exists. You can overwrite with -w option")
 	}
-	return Generate(option, client)
+
+	generated := Generate(option, client)
+	return generated
 }
