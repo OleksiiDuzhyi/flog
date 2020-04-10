@@ -3,13 +3,13 @@ package main
 import (
 	"compress/gzip"
 	"fmt"
+	"github.com/smira/go-statsd"
 	"io"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
-	"github.com/smira/go-statsd"
 )
 
 // Generate generates the logs with given options
@@ -29,12 +29,22 @@ func Generate(option *Option, client *statsd.Client) error {
 		return err
 	}
 
+	var predefinedLines []string
+	if len(strings.TrimSpace(option.Predefined)) > 0 {
+		predefinedLines = strings.SplitN(option.Predefined, "\\r\\n", -1)
+	}
+
 	if option.Forever {
 		for {
 			if delay > 0 {
 				time.Sleep(delay)
 			}
-			log := NewLog(option.Format, created)
+			var log string
+			if predefinedLines != nil {
+				log = predefinedLines[generated_count%len(predefinedLines)]
+			} else {
+				log = NewLog(option.Format, created)
+			}
 			writer.Write([]byte(log + "\n"))
 			generated_count++
 			// client.GaugeDelta("generated_total", +1)
@@ -51,7 +61,12 @@ func Generate(option *Option, client *statsd.Client) error {
 			if delay > 0 {
 				time.Sleep(delay)
 			}
-			log := NewLog(option.Format, created)
+			var log string
+			if predefinedLines != nil {
+				log = predefinedLines[generated_count%len(predefinedLines)]
+			} else {
+				log = NewLog(option.Format, created)
+			}
 			writer.Write([]byte(log + "\n"))
 			generated_count++
 			// client.GaugeDelta("generated_total", +1)
@@ -78,7 +93,12 @@ func Generate(option *Option, client *statsd.Client) error {
 			if delay > 0 {
 				time.Sleep(delay)
 			}
-			log := NewLog(option.Format, created)
+			var log string
+			if predefinedLines != nil {
+				log = predefinedLines[generated_count%len(predefinedLines)]
+			} else {
+				log = NewLog(option.Format, created)
+			}
 			writer.Write([]byte(log + "\n"))
 			generated_count++
 			// client.GaugeDelta("generated_total", +1)

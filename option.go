@@ -33,6 +33,7 @@ Options:
   -m, --statsd-host	   	   set statsd server host. Defaults to 0.0.0.0.
   -k, --statsd-port	   	   specify statsd server port number. Defaults to 8125.
   -c, --statsd-prefix	   set statsd metric prefix. This is a string that all your metric names will start with. Default - empty.
+  --predefined		   string with eligible log lines to produce, overwrites -f, -b options. Default - empty
 `
 
 var validFormats = []string{"apache_common", "apache_combined", "apache_error", "rfc3164", "rfc5424", "common_log"}
@@ -40,19 +41,20 @@ var validTypes = []string{"stdout", "log", "gz"}
 
 // Option defines log generator options
 type Option struct {
-	Format    string
-	Output    string
-	Type      string
-	Number    int
-	Bytes     int
-	Sleep     float64
-	Delay     float64
-	SplitBy   int
-	Overwrite bool
-	Forever   bool
-	StatsdHost string
-	StatsdPort string
+	Format       string
+	Output       string
+	Type         string
+	Number       int
+	Bytes        int
+	Sleep        float64
+	Delay        float64
+	SplitBy      int
+	Overwrite    bool
+	Forever      bool
+	StatsdHost   string
+	StatsdPort   string
 	StatsdPrefix string
+	Predefined   string
 }
 
 func init() {
@@ -74,19 +76,20 @@ func errorExit(err error) {
 
 func defaultOptions() *Option {
 	return &Option{
-		Format:    "apache_common",
-		Output:    "generated.log",
-		Type:      "stdout",
-		Number:    1000,
-		Bytes:     0,
-		Sleep:     0.0,
-		Delay:     0.0,
-		SplitBy:   0,
-		Overwrite: false,
-		Forever:   false,
-		StatsdHost: "0.0.0.0",
-		StatsdPort: "8125",
+		Format:       "apache_common",
+		Output:       "generated.log",
+		Type:         "stdout",
+		Number:       1000,
+		Bytes:        0,
+		Sleep:        0.0,
+		Delay:        0.0,
+		SplitBy:      0,
+		Overwrite:    false,
+		Forever:      false,
+		StatsdHost:   "0.0.0.0",
+		StatsdPort:   "8125",
 		StatsdPrefix: "",
+		Predefined:   "",
 	}
 }
 
@@ -146,6 +149,14 @@ func ParseSplitBy(splitBy int) (int, error) {
 	return splitBy, nil
 }
 
+// ParseType validates the given type
+func ParsePredefined(logType string) (string, error) {
+	if !containString(validTypes, logType) {
+		return "", fmt.Errorf("%s is not a valid log type", logType)
+	}
+	return logType, nil
+}
+
 // ParseOptions parses given parameters from command line
 func ParseOptions() *Option {
 	var err error
@@ -167,6 +178,7 @@ func ParseOptions() *Option {
 	statsdHost := pflag.StringP("statsd-host", "m", opts.StatsdHost, "Metric server hostname or ip")
 	statsdPort := pflag.StringP("statsd-port", "k", opts.StatsdPort, "Metric server port number")
 	statsdPrefix := pflag.StringP("statsd-prefix", "c", opts.StatsdPrefix, "Metric name prefix")
+	predefined := pflag.String("predefined", opts.Predefined, "Predefined log lines")
 
 	pflag.Parse()
 
@@ -211,6 +223,8 @@ func ParseOptions() *Option {
 	}
 
 	opts.StatsdPrefix = *statsdPrefix
+
+	opts.Predefined = *predefined
 
 	return opts
 }
